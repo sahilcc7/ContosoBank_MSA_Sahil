@@ -1,0 +1,22 @@
+{
+  "name": "contosobank_msa_sahil",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sahilcc7/ContosoBank_MSA_Sahil.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sahilcc7/ContosoBank_MSA_Sahil/issues"
+  },
+  "homepage": "https://github.com/sahilcc7/ContosoBank_MSA_Sahil#readme",
+  "dependencies": {
+    "botbuilder": "^3.12.0"
+  }
+}
