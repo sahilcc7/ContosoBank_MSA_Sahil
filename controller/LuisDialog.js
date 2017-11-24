@@ -1,4 +1,7 @@
 var builder = require('botbuilder');
+
+var balance = require('./BankBalance');
+
 //var food = require('./FavouriteFoods');
 //var restaurant = require('./restaurantCard');
 //var nutrition = require('./NutritionCard');
@@ -11,7 +14,6 @@ exports.startDialog = function (bot) {
     var recognizer = new builder.LuisRecognizer('https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/4dcdafa5-b5c6-416a-b64f-7a263019e094?subscription-key=47edd6f4484c40219f78d8593d7407ec&verbose=true&timezoneOffset=0&q=');
     
     bot.recognizer(recognizer);
-
 
 
     bot.dialog('welcomeIntent', function (session, args) { //WELCOME
@@ -31,11 +33,37 @@ exports.startDialog = function (bot) {
          matches: 'None'
     });
     
-    bot.dialog('getBankBalance', function (session, args) { //GET BALANCE
+    // bot.dialog('getBankBalance', function (session, args) { //GET BALANCE
         
-        session.send('getBankBalance intent Found');        
+    //     session.send('getBankBalance intent Found');        
                       
-    }).triggerAction({
+    // }).triggerAction({
+    //     matches: 'getBankBalance'
+    // });
+    bot.dialog('getBankBalance', [
+        function (session, args, next) {
+            
+            session.dialogData.args = args || {};        
+            if (!session.conversationData["username"]) {
+                builder.Prompts.text(session, "Enter a username to setup your account.");                
+            } else {
+                next(); // Skip if we already have this info.
+            }
+        },
+        function (session, results, next) {
+            if (!isAttachment(session)) {
+                
+                if (results.response) {
+                    
+                    session.conversationData["username"] = results.response;
+                }
+
+                session.send("Retrieving your bank balance");
+                food.displayBankBalance(session, session.conversationData["username"]);  // <---- THIS LINE HERE IS WHAT WE NEED 
+            
+        }
+    }
+    ]).triggerAction({
         matches: 'getBankBalance'
     });
 
@@ -46,7 +74,7 @@ exports.startDialog = function (bot) {
         matches: 'getAccountNumber'
     });
 
-    bot.dialog('transferMoney', function (session, args) { //GET ACCOUNT NUMBER
+    bot.dialog('transferMoney', function (session, args) { //TRANSFER MONEY
         session.send('transferMoney intent Found');        
                       
     }).triggerAction({
