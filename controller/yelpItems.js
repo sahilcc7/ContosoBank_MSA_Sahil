@@ -2,13 +2,13 @@ var rest = require('../API/Restclient');
 var builder = require('botbuilder');
 
 //Calls 'getYelpData' in RestClient.js with 'displayRestaurantCards' as callback to get list of restaurant information
-exports.displayRestaurantCards = function getRestaurantData(foodName, location, session){
-    var url ='https://api.yelp.com/v3/businesses/search?term='+foodName+'&location='+location + '&limit=5';
+exports.displayPlaces = function getPlaceData(item, location, session){
+    var url ='https://api.yelp.com/v3/businesses/search?term='+item+'&location='+location + '&limit=5';
     var auth ='wzBWFHVcPp4lL55pCkMMOi6U2W-dja0kMEZ0cRB1CadupFRir2BqEcvSVd1x2X83s-MAQ0XQZsMA8jWrBeS55E42U1ux5hDg99FLiKXN6UKSBXWKMNe9iaVwMxIWWnYx';
-    rest.getYelpData(url,auth,session,displayRestaurantCards);
+    rest.getYelpData(url,auth,session,displayPlaceCards);
 }
 
-function displayRestaurantCards(message, session) {
+function displayPlaceCards(message, session) {
     var attachment = [];
     var restaurants = JSON.parse(message);
     
@@ -19,24 +19,51 @@ function displayRestaurantCards(message, session) {
         var imageURL = restaurant.image_url;
         var url = restaurant.url;
         var address = restaurant.location.address1 + ", " + restaurant.location.city;
-
+        var price = restaurant.price;
         
 
         var card = new builder.HeroCard(session)
             .title(name)
+            .subtitle(price)
             .text(address)
             .images([
                 builder.CardImage.create(session, imageURL)])
             .buttons([
                 builder.CardAction.openUrl(session, url, 'More Information')
             ]);
-        attachment.push(card);
+
+        if (canAfford(price, session.conversationData["bankbalance"])) {
+            attachment.push(card);
+        }        
 
     }
 
+    
     //Displays restaurant hero card carousel in chat box 
     var message = new builder.Message(session)
         .attachmentLayout(builder.AttachmentLayout.carousel)
         .attachments(attachment);
     session.send(message);
+}
+
+
+function canAfford (priceLevel, balance) { //this function compares price level with bank balance
+
+    balance = parseInt(balance);
+    if (priceLevel == '$' && balance >= 10) {
+        return true;
+    }
+    else if (priceLevel == '$$' && balance >= 25) {
+        return true;
+    }
+    else if (priceLevel == '$$$' && balance >= 100) {
+        return true;
+    }
+    else if (priceLevel == '$$$$' && balance >= 250) {
+        return true;
+    }
+
+    else {
+        return false;
+    }
 }

@@ -1,9 +1,9 @@
 var builder = require('botbuilder');
 
 var balance = require('./BankBalance');
-
+var itemEntity;
 //var food = require('./FavouriteFoods');
-//var restaurant = require('./restaurantCard');
+var place = require('./yelpItems');
 //var nutrition = require('./NutritionCard');
 //var customVision = require('../controller/CustomVision');
 // Some sections have been omitted
@@ -19,7 +19,7 @@ exports.startDialog = function (bot) {
     bot.dialog('welcomeIntent', function (session, args) { //WELCOME
         if (!isAttachment(session)) {
         session.send('Welcome to Contoso Bank');     
-        session.send('You can check your balance, make a transfer, and more');   
+        //session.send('You can check your balance, make a transfer, and more');   
         }             
     }).triggerAction({
          matches: 'welcomeIntent'
@@ -44,7 +44,7 @@ exports.startDialog = function (bot) {
         function (session, args, next) {
             
             session.dialogData.args = args || {};        
-            if (!session.conversationData["username"]) {
+            if (!session.conversationData["username"]) { //get the username
                 builder.Prompts.text(session, "Enter a username to setup your account.");                
             } else {
                 next(); // Skip if we already have this info.
@@ -54,12 +54,13 @@ exports.startDialog = function (bot) {
             if (!isAttachment(session)) {
                 
                 if (results.response) {
+                    session.conversationData["username"] = results.response; 
+                    //console.log(results.response);
                     
-                    session.conversationData["username"] = results.response;
                 }
 
                 session.send("Retrieving your bank balance");
-                food.displayBankBalance(session, session.conversationData["username"]);  // <---- THIS LINE HERE IS WHAT WE NEED 
+                balance.displayBankBalance(session, session.conversationData["username"]);  // <---- THIS LINE HERE IS WHAT WE NEED 
             
         }
     }
@@ -79,6 +80,50 @@ exports.startDialog = function (bot) {
                       
     }).triggerAction({
         matches: 'transferMoney'
+    });
+
+
+    bot.dialog('afford', [
+        function (session, args, next) {
+
+            itemEntity = builder.EntityRecognizer.findEntity(args.intent.entities, 'item');
+            //console.log('------------------------------');
+            //console.log(itemEntity.entity);
+            //console.log(builder.EntityRecognizer.findAllEntities(args.intent.entities, 'item'));
+
+
+            
+            session.dialogData.args = args || {};        
+            if (!session.conversationData["username"]) { //get the username
+                builder.Prompts.text(session, "Enter a username to setup your account.");                
+            } else {
+                next(); // Skip if we already have this info.
+            }
+        },
+        function (session, results, next) {
+            if (!isAttachment(session)) {
+                
+                if (results.response) {
+                    session.conversationData["username"] = results.response;                    
+                }
+
+                balance.displayBankBalance(session, session.conversationData["username"]);  // <---- THIS LINE HERE IS WHAT WE NEED         
+                                     
+                //console.log(session.conversationData);
+
+                // Checks if the for entity was found
+                if (itemEntity) {
+                    session.send("Looking for %s's...", itemEntity.entity);
+                    place.displayPlaces(itemEntity.entity, "auckland", session);
+                } else {
+                    session.send("No food identified! Please try again");
+                }
+
+
+            }
+    }
+    ]).triggerAction({
+        matches: 'afford'
     });
 
 

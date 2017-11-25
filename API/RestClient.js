@@ -1,6 +1,6 @@
 var request = require('request');
 
-exports.getFavouriteFood = function getData(url, session, username, callback){
+exports.getBankBalance = function getData(url, session, username, callback){ //exports used to call function from other file
     request.get(url, {'headers':{'ZUMO-API-VERSION': '2.0.0'}}, function handleGetResponse(err,res,body){
         if(err){
             console.log(err);
@@ -10,7 +10,7 @@ exports.getFavouriteFood = function getData(url, session, username, callback){
     });
 };
 
-exports.postFavouriteFood = function sendData(url, username, favouriteFood){ //exports used to call function from other file
+exports.postFavouriteFood = function sendData(url, username, favouriteFood){ 
     var options = {
         url: url,
         method: 'POST',
