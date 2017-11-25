@@ -10,17 +10,29 @@ exports.getBankBalance = function getData(url, session, username, callback){ //e
     });
 };
 
-exports.postFavouriteFood = function sendData(url, username, favouriteFood){ 
+exports.getSpendingGoal = function getData(url, session, username, callback){ //exports used to call function from other file
+    request.get(url, {'headers':{'ZUMO-API-VERSION': '2.0.0'}}, function handleGetResponse(err,res,body){
+        if(err){
+            console.log(err);
+        }else {
+            callback(body, session, username);
+        }
+    });
+};
+
+
+
+exports.updateSpendingGoal = function sendData(url, id, spendingGoal){ 
     var options = {
         url: url,
-        method: 'POST',
+        method: 'PATCH',
         headers: {
             'ZUMO-API-VERSION': '2.0.0',
             'Content-Type':'application/json'
         },
         json: {
-            "username" : username,
-            "favouriteFood" : favouriteFood
+            "id" : id,
+            "spendingGoal" : spendingGoal
         }
       };
       
@@ -33,6 +45,31 @@ exports.postFavouriteFood = function sendData(url, username, favouriteFood){
         }
       });
 };
+
+
+// exports.postFavouriteFood = function sendData(url, username, favouriteFood){ 
+//     var options = {
+//         url: url,
+//         method: 'POST',
+//         headers: {
+//             'ZUMO-API-VERSION': '2.0.0',
+//             'Content-Type':'application/json'
+//         },
+//         json: {
+//             "username" : username,
+//             "favouriteFood" : favouriteFood
+//         }
+//       };
+      
+//       request(options, function (error, response, body) { //callback
+//         if (!error && response.statusCode === 200) {
+//             console.log(body);
+//         }
+//         else{
+//             console.log(error);
+//         }
+//       });
+// };
 
 exports.deleteFavouriteFood = function deleteData(url,session, username ,favouriteFood, id, callback){ //need ID of row
     var options = {

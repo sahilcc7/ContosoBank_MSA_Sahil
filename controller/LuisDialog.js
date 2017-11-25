@@ -33,13 +33,6 @@ exports.startDialog = function (bot) {
          matches: 'None'
     });
     
-    // bot.dialog('getBankBalance', function (session, args) { //GET BALANCE
-        
-    //     session.send('getBankBalance intent Found');        
-                      
-    // }).triggerAction({
-    //     matches: 'getBankBalance'
-    // });
     bot.dialog('getBankBalance', [
         function (session, args, next) {
             
@@ -82,17 +75,10 @@ exports.startDialog = function (bot) {
         matches: 'transferMoney'
     });
 
-
-    bot.dialog('afford', [
+    bot.dialog('setSpendingGoal', [
         function (session, args, next) {
 
-            itemEntity = builder.EntityRecognizer.findEntity(args.intent.entities, 'item');
-            //console.log('------------------------------');
-            //console.log(itemEntity.entity);
-            //console.log(builder.EntityRecognizer.findAllEntities(args.intent.entities, 'item'));
-
-
-            
+            amountEntity = builder.EntityRecognizer.findEntity(args.intent.entities, 'amount');            
             session.dialogData.args = args || {};        
             if (!session.conversationData["username"]) { //get the username
                 builder.Prompts.text(session, "Enter a username to setup your account.");                
@@ -107,16 +93,72 @@ exports.startDialog = function (bot) {
                     session.conversationData["username"] = results.response;                    
                 }
 
-                balance.displayBankBalance(session, session.conversationData["username"]);  // <---- THIS LINE HERE IS WHAT WE NEED         
-                                     
-                //console.log(session.conversationData);
+                if (amountEntity) {
+                    session.send('Updating your spending goal to $%s...', amountEntity.entity);
+                    balance.updateSpendingGoal(session, session.conversationData["username"], amountEntity.entity); // <-- LINE WE WANT
+    
+                } else {
+                    session.send("Spending goal not specified.");
+                }                     
 
-                // Checks if the for entity was found
+            }
+    }
+    ]).triggerAction({
+        matches: 'setSpendingGoal'
+    });
+
+    bot.dialog('getSpendingGoal', [
+        function (session, args, next) {
+            
+            session.dialogData.args = args || {};        
+            if (!session.conversationData["username"]) { //get the username
+                builder.Prompts.text(session, "Enter a username to setup your account.");                
+            } else {
+                next(); // Skip if we already have this info.
+            }
+        },
+        function (session, results, next) {
+            if (!isAttachment(session)) {
+                
+                if (results.response) {
+                    session.conversationData["username"] = results.response; 
+                    
+                }
+
+                session.send("Retrieving your spending goal");
+                balance.displaySpendingGoal(session, session.conversationData["username"]);  // <---- THIS LINE HERE IS WHAT WE NEED 
+            
+        }
+    }
+    ]).triggerAction({
+        matches: 'getSpendingGoal'
+    });
+
+    bot.dialog('afford', [
+        function (session, args, next) {
+
+            itemEntity = builder.EntityRecognizer.findEntity(args.intent.entities, 'item');            
+            session.dialogData.args = args || {};        
+            if (!session.conversationData["username"]) { //get the username
+                builder.Prompts.text(session, "Enter a username to setup your account.");                
+            } else {
+                next(); // Skip if we already have this info.
+            }
+        },
+        function (session, results, next) {
+            if (!isAttachment(session)) {
+                
+                if (results.response) {
+                    session.conversationData["username"] = results.response;                    
+                }
+
+                balance.displayBankBalance(session, session.conversationData["username"]);  //find bank balance    
+                                     
                 if (itemEntity) {
                     session.send("Looking for %s's...", itemEntity.entity);
                     place.displayPlaces(itemEntity.entity, "auckland", session);
                 } else {
-                    session.send("No food identified! Please try again");
+                    session.send("No items identified! Please try again"); //finding affordable food
                 }
 
 

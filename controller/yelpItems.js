@@ -1,6 +1,8 @@
 var rest = require('../API/Restclient');
 var builder = require('botbuilder');
 
+var balanceAfter;
+
 //Calls 'getYelpData' in RestClient.js with 'displayRestaurantCards' as callback to get list of restaurant information
 exports.displayPlaces = function getPlaceData(item, location, session){
     var url ='https://api.yelp.com/v3/businesses/search?term='+item+'&location='+location + '&limit=5';
@@ -34,16 +36,19 @@ function displayPlaceCards(message, session) {
 
         if (canAfford(price, session.conversationData["bankbalance"])) {
             attachment.push(card);
+        }
+        else {
+            session.send("You cannot afford it.");
         }        
 
     }
-
     
     //Displays restaurant hero card carousel in chat box 
     var message = new builder.Message(session)
         .attachmentLayout(builder.AttachmentLayout.carousel)
         .attachments(attachment);
-    session.send(message);
+        session.send(message);
+        session.send("Your balance after will be approximately $%s", balanceAfter);
 }
 
 
@@ -51,19 +56,24 @@ function canAfford (priceLevel, balance) { //this function compares price level 
 
     balance = parseInt(balance);
     if (priceLevel == '$' && balance >= 10) {
+        balanceAfter = balance - 10;
         return true;
     }
     else if (priceLevel == '$$' && balance >= 25) {
+        balanceAfter = balance - 25;
         return true;
     }
     else if (priceLevel == '$$$' && balance >= 100) {
+        balanceAfter = balance - 100;
         return true;
     }
     else if (priceLevel == '$$$$' && balance >= 250) {
+        balanceAfter = balance - 250;
         return true;
     }
 
     else {
+        balanceAfter = balance;
         return false;
     }
 }
