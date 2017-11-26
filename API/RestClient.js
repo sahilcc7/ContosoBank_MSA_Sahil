@@ -20,8 +20,6 @@ exports.getSpendingGoal = function getData(url, session, username, callback){ //
     });
 };
 
-
-
 exports.updateSpendingGoal = function sendData(url, id, spendingGoal){ 
     var options = {
         url: url,
@@ -45,6 +43,16 @@ exports.updateSpendingGoal = function sendData(url, id, spendingGoal){
         }
       });
 };
+
+exports.getCurrencyData = function getData (url, session, callback) {
+    request.get(url, {'headers':{'ZUMO-API-VERSION': '2.0.0'}}, function handleGetResponse(err,res,body){
+        if(err){
+            console.log(err);
+        }else {
+            callback(body, session);
+        }
+    });
+}
 
 
 // exports.postFavouriteFood = function sendData(url, username, favouriteFood){ 

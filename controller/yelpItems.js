@@ -38,7 +38,7 @@ function displayPlaceCards(message, session) {
             attachment.push(card);
         }
         else {
-            session.send("You cannot afford it.");
+            //session.send("You cannot afford it.");
         }        
 
     }
@@ -47,6 +47,7 @@ function displayPlaceCards(message, session) {
     var message = new builder.Message(session)
         .attachmentLayout(builder.AttachmentLayout.carousel)
         .attachments(attachment);
+        session.send("Here are some you can afford.")
         session.send(message);
         session.send("Your balance after will be approximately $%s", balanceAfter);
 }

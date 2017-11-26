@@ -1,6 +1,7 @@
 var builder = require('botbuilder');
 
 var balance = require('./BankBalance');
+var currencyConvert = require('./currencyConvert');
 var itemEntity;
 //var food = require('./FavouriteFoods');
 var place = require('./yelpItems');
@@ -167,6 +168,44 @@ exports.startDialog = function (bot) {
     ]).triggerAction({
         matches: 'afford'
     });
+    
+    bot.dialog('currencyConvert', [
+        function (session, args, next) {
+
+            amountEntity = builder.EntityRecognizer.findEntity(args.intent.entities, 'amount');            
+            fromCurrencyEntity = builder.EntityRecognizer.findEntity(args.intent.entities, 'fromCurrency');            
+            toCurrencyEntity = builder.EntityRecognizer.findEntity(args.intent.entities, 'toCurrency');            
+            
+            session.dialogData.args = args || {};  
+
+            next();
+        },
+        function (session, results, next) {
+            if (!isAttachment(session)) {
+            
+
+                if (amountEntity && fromCurrencyEntity && toCurrencyEntity) {
+                    
+                    session.send('Converting $%s from %s to %s...', amountEntity.entity, fromCurrencyEntity.entity, toCurrencyEntity.entity);
+                    currencyConvert.displayCurrency(session, amountEntity.entity, fromCurrencyEntity.entity, toCurrencyEntity.entity); //sending session, currencies, amount
+    
+                } else {
+                    session.send("Please ensure you have all parameters.");
+                }                     
+
+            }
+    }
+    ]).triggerAction({
+        matches: 'currencyConvert'
+    });
+
+
+
+
+
+
+
+
 
 
     function isAttachment(session) { 
