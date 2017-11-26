@@ -138,7 +138,8 @@ exports.startDialog = function (bot) {
     bot.dialog('afford', [
         function (session, args, next) {
 
-            itemEntity = builder.EntityRecognizer.findEntity(args.intent.entities, 'item');            
+            itemEntity = builder.EntityRecognizer.findEntity(args.intent.entities, 'item');   
+            session.conversationData["item"] = itemEntity;         
             session.dialogData.args = args || {};        
             if (!session.conversationData["username"]) { //get the username
                 builder.Prompts.text(session, "Enter a username to setup your account.");                
@@ -153,15 +154,10 @@ exports.startDialog = function (bot) {
                     session.conversationData["username"] = results.response;                    
                 }
 
-                balance.displayBankBalance(session, session.conversationData["username"]);  //find bank balance    
-                                     
-                if (itemEntity) {
-                    session.send("Looking for %s's...", itemEntity.entity);
-                    place.displayPlaces(itemEntity.entity, "auckland", session);
-                } else {
-                    session.send("No items identified! Please try again"); //finding affordable food
-                }
+                balance.forwardBankBalance(session, session.conversationData["username"]);  //find bank balance    
+                
 
+                   
 
             }
     }

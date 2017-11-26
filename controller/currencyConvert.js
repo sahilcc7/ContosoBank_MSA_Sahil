@@ -1,11 +1,15 @@
 var rest = require('../API/Restclient');
 
 var toCurrency;
+var amount;
+var fromCurrency;
 
 exports.displayCurrency = function convertCurrency(session, amountEntity, fromCurrencyEntity, toCurrencyEntity) {
     fromCurrencyEntity = fromCurrencyEntity.toUpperCase();
     toCurrencyEntity = toCurrencyEntity.toUpperCase();
     toCurrency = toCurrencyEntity;
+    fromCurrency = fromCurrencyEntity;
+    amount = amountEntity;
     var url = 'https://api.fixer.io/latest?base=' + fromCurrencyEntity +'&symbols=' + fromCurrencyEntity +',' + toCurrencyEntity; //eg base=USD for: conv USD to NZD
     rest.getCurrencyData(url, session, displayCurrency); //call REST API
 }
@@ -18,14 +22,15 @@ function displayCurrency(message, session) {
     var exchangeRate = currency.rates[toCurrency];
 
     console.log('-----------');
-    console.log(exchangeRate);
+    
+    exchangeRate = parseFloat(exchangeRate);
+    amount = parseFloat(amount);
 
-    exchangeRate = parseInt(exchangeRate);
-    toCurrency = parseInt(toCurrency);
-    var converted =  exchangeRate * toCurrency;
+    console.log(toCurrency);
+
+    var converted =  exchangeRate * amount;
     console.log(converted);
-    converted = toString(converted);
-    console.log(converted);
-    session.send('Converted: %s', converted);
+
+    session.send('$%s in %s is $%s in %s',amount, fromCurrency, converted, toCurrency);
 
 }

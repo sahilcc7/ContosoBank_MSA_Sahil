@@ -1,15 +1,16 @@
 var rest = require('../API/Restclient');
-var bankBalance = '000000000000000000000'
+var bankBalance = null;
+var place = require('./yelpItems');
 
 
 exports.displayBankBalance = function getBankBalance(session, username){ //GETS BANK BALANCE
     var url = 'http://contosobank-msa-sahil.azurewebsites.net/tables/contosobank';
-    rest.getBankBalance(url, session, username, handleBankBalanceResponse)
+    rest.getBankBalance(url, session, username, handleBankBalanceResponse);
 };
 
 exports.displaySpendingGoal = function getSpendingGoal(session, username){ //GETS SPENDING GOAL
     var url = 'http://contosobank-msa-sahil.azurewebsites.net/tables/contosobank';
-    rest.getSpendingGoal(url, session, username, handleSpendingGoalResponse)
+    rest.getSpendingGoal(url, session, username, handleSpendingGoalResponse);
 };
 
 exports.updateSpendingGoal = function updateSpendingGoal(session, username, spendingGoal){  //UPDATES SPENDING GOAL
@@ -29,6 +30,11 @@ exports.updateSpendingGoal = function updateSpendingGoal(session, username, spen
         session.send("Your spending goal has been updated.");                
         
     });
+};
+
+exports.forwardBankBalance = function forwardBankBalance(session, username){ //GETS BANK BALANCE
+    var url = 'http://contosobank-msa-sahil.azurewebsites.net/tables/contosobank';
+    rest.getBankBalance(url, session, username, handleForwardedBankBalanceResponse);
 };
 
 function handleBankBalanceResponse(message, session, username) {
@@ -51,6 +57,19 @@ function handleBankBalanceResponse(message, session, username) {
     
 }
 
+function handleForwardedBankBalanceResponse(message, session, username) {
+    handleBankBalanceResponse(message, session, username);
+    var item = session.conversationData["item"];
+    if (item) {
+        session.send("Looking for %s's...", item.entity);
+        place.displayPlaces(item.entity, "auckland", session);
+    } else {
+        session.send("No items identified! Please try again"); //finding affordable food
+    } 
+    
+}
+
+
 function handleSpendingGoalResponse(message, session, username) {
     var spendingGoalResponse = JSON.parse(message);
 
@@ -70,3 +89,6 @@ function handleSpendingGoalResponse(message, session, username) {
     
 }
 
+exports.getBankBalanceValue = function getBankBalanceValue() {
+    return bankBalance;
+}
