@@ -37,6 +37,36 @@ exports.forwardBankBalance = function forwardBankBalance(session, username){ //G
     rest.getBankBalance(url, session, username, handleForwardedBankBalanceResponse);
 };
 
+exports.createAccount = function createAccount(session, name, username, balance, spendingGoal){  
+    var url = 'http://contosobank-msa-sahil.azurewebsites.net/tables/contosobank'; 
+    
+        rest.createAccount(url, name, username, balance, spendingGoal, handleCreateAccountResponse);
+        session.send("Your account has been created.");                
+};
+
+exports.deleteAccount = function deleteAccount(session,username){ //favourite food you want to delete
+    var url  = 'http://contosobank-msa-sahil.azurewebsites.net/tables/contosobank';
+
+    rest.getSpendingGoal(url,session, username,function(message,session,username) {
+     var   allGoals = JSON.parse(message); //get list of all spending goals to get ID
+        for(var i in allGoals) {
+
+            if (allGoals[i].username === username) { //check if goals and username match 
+                               
+                rest.deleteAccount(url,session,username, allGoals[i].id, deleteAccount); //delete              //NOT WORK.  
+            }
+        }
+
+    });
+
+
+};
+
+function deleteAccount(message, session, username) {
+    console.log("DELETED ACCOUNT -------------");
+    session.send("Your account has been deleted.");
+}
+
 function handleBankBalanceResponse(message, session, username) {
     var bankBalanceResponse = JSON.parse(message);
 
@@ -49,12 +79,19 @@ function handleBankBalanceResponse(message, session, username) {
         //Convert to lower case whilst doing comparison to ensure the user can type whatever they like
         if (username.toLowerCase() === usernameReceived.toLowerCase()) { //check if username matches database
             session.conversationData["bankbalance"] = bankBalance;  
+            // Print all favourite foods for the user that is currently logged in
+            session.send("%s, your bank balance is: $%s", nameReceived, bankBalance);     
+            var found = true;
             break; //break out of loop as we have found the entry
         }        
-    }    
-    // Print all favourite foods for the user that is currently logged in
-    session.send("%s, your bank balance is: $%s", nameReceived, bankBalance);                
+        else {
+            found = false; 
+        }
+    }
     
+    if (!found) {
+        session.send("Username '%s' not found, please setup an account.", username); 
+    }
 }
 
 function handleForwardedBankBalanceResponse(message, session, username) {
@@ -77,16 +114,29 @@ function handleSpendingGoalResponse(message, session, username) {
         var usernameReceived = spendingGoalResponse[index].username; 
         var spendingGoal = spendingGoalResponse[index].spendingGoal;
         var nameReceived = spendingGoalResponse[index].name;
-                
+        
         //Convert to lower case whilst doing comparison to ensure the user can type whatever they like
-        if (username.toLowerCase() === usernameReceived.toLowerCase()) { //check if username matches database
+        if (username.toLowerCase() === usernameReceived.toLowerCase()) { //check if username matches database       //CHECK THIS
             session.conversationData["spendinggoal"] = spendingGoal;  
+            // Print all favourite foods for the user that is currently logged in
+            session.send("%s, your spending goal is: $%s", nameReceived, spendingGoal); 
+            var found = true;
             break; //break out of loop as we have found the entry
-        }        
-    }    
-    // Print all favourite foods for the user that is currently logged in
-    session.send("%s, your spending goal is: $%s", nameReceived, spendingGoal);                
+        }
+        
+        else {
+            found = false; 
+        }
+    }
     
+    if (!found) {
+        session.send("Username '%s' not found, please setup an account.", username); 
+    }
+       
+}
+
+function handleCreateAccountResponse(message, session, username) {
+    console.log("ACCOUNT CREATED _____________________");
 }
 
 exports.getBankBalanceValue = function getBankBalanceValue() {
