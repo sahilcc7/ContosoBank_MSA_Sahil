@@ -3,6 +3,7 @@ var builder = require('botbuilder');
 var balance = require('./BankBalance');
 var currencyConvert = require('./currencyConvert');
 var itemEntity;
+var stock = require('./stockPrices');
 //var food = require('./FavouriteFoods');
 var place = require('./yelpItems');
 //var nutrition = require('./NutritionCard');
@@ -275,6 +276,34 @@ exports.startDialog = function (bot) {
     }]).triggerAction({
         matches:'deleteAccount'
     })
+
+    bot.dialog('stocks', [
+        function (session, args, next) {
+            
+            companyEntity = builder.EntityRecognizer.findEntity(args.intent.entities, 'company');         
+            console.log(companyEntity.entity);               
+            session.dialogData.args = args || {};  
+            next();
+        },
+        function (session, results, next) {
+            if (!isAttachment(session)) {
+            
+                if (companyEntity) {  //if company specified
+                    
+                    session.send('Finding stock prices in %s...', companyEntity.entity);
+                    stock.displayStockPrices(session, companyEntity.entity); //sending session, currencies, amount
+    
+                } else {
+                    session.send("Please ensure you define the company name.");
+                }                     
+
+            }
+    }
+    ]).triggerAction({
+        matches: 'stocks'
+    });
+
+
 
     bot.dialog('logout', [
         function (session, args, next) {
