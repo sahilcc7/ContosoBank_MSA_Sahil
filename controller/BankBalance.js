@@ -92,7 +92,7 @@ function handleBankBalanceResponse(message, session, username) {
         if (username.toLowerCase() === usernameReceived.toLowerCase()) { //check if username matches database
             session.conversationData["bankbalance"] = bankBalance;  
             // Print all favourite foods for the user that is currently logged in
-            session.send("%s, your bank balance is: $%s", nameReceived, bankBalance);     
+            session.send("%s, your bank balance is: $%s", nameReceived, parseInt(bankBalance));     
             var found = true;
             break; //break out of loop as we have found the entry
         }        
@@ -126,13 +126,13 @@ function handleWithdrawResponse(message,session,username) {
     console.log(session.conversationData["bankbalance"]);
 
     if (parseFloat(session.conversationData["bankbalance"]) >=  parseFloat(globalAmount)) {
-        session.send("You can afford to buy the stock.");
+        //session.send("You can afford to buy the stock.");
         
         //Update balance.
         var newBankBalance = (parseFloat(session.conversationData["bankbalance"])- (parseFloat(globalAmount))).toString();
         var url = 'http://contosobank-msa-sahil.azurewebsites.net/tables/contosobank';
         rest.updateBankBalance(url, globalID, newBankBalance, handleUpdatedBankBalanceResponse);
-        session.send("Your balance is now $%s", newBankBalance);
+        //session.send("Your balance is now $%s", newBankBalance);
 
         //Update stock table
 

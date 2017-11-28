@@ -1,5 +1,6 @@
 var rest = require('../API/Restclient');
 var balance = require('./BankBalance');
+var stockCard = require('./buyStocksCard');
 
 var globalCompany;
 var globalQuantity;
@@ -53,8 +54,8 @@ function buyStocks(message, session) {
         var finalPrice = parseFloat(stockPrice) * parseFloat(globalQuantity);
         finalPrice = finalPrice.toString();
         
-        session.send("Total Stock Price in %s is %s", globalCompany,finalPrice);
-                
+        //session.send("Total Stock Price in %s is %s", globalCompany,finalPrice);
+        stockCard.displayBuyStocks(session, globalCompany, globalUsername, finalPrice);        
         balance.withdrawBalance(message, session, globalUsername, finalPrice);
        
        

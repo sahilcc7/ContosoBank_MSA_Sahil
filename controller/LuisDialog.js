@@ -1,14 +1,13 @@
 var builder = require('botbuilder');
-//
 var balance = require('./BankBalance');
 var currencyConvert = require('./currencyConvert');
 var itemEntity;
 var stock = require('./stockPrices');
-//var food = require('./FavouriteFoods');
 var place = require('./yelpItems');
-//var nutrition = require('./NutritionCard');
-//var customVision = require('../controller/CustomVision');
-// Some sections have been omitted
+var customVision = require('../controller/CustomVision');
+var welcome = require('./welcomeCard');
+var stockCard = require('./buyStocksCard');
+
 var accountSetupComplete = false;
 
 exports.startDialog = function (bot) {
@@ -28,6 +27,7 @@ exports.startDialog = function (bot) {
     bot.dialog('welcomeIntent', function (session, args) { //WELCOME
         if (!isAttachment(session)) {
         session.send('Welcome to the Contoso Bank Bot!');     
+        welcome.displayWelcome(session);
         }             
     }).triggerAction({
          matches: 'welcomeIntent'
@@ -69,17 +69,13 @@ exports.startDialog = function (bot) {
 
         // Process request and display reservation details
         session.send(`Creating Account. Account details: <br/>Date/Time: ${session.dialogData.name} <br/>Username: ${session.dialogData.username} <br/>Bank Balance: ${session.dialogData.balance}<br/>Spending Goal: ${session.dialogData.spendingGoal}`);
-
-        //enabled = true;
         
         balance.createAccount(session, session.dialogData.name, session.dialogData.username, session.dialogData.balance, session.dialogData.spendingGoal); 
 
         session.endDialog();
         accountSetupComplete = true;
-        console.log("ENDED------------------");
 
-        }
-        
+        }     
         
 
     ]).triggerAction({
@@ -122,19 +118,12 @@ exports.startDialog = function (bot) {
         matches: 'getBankBalance'
     });
 
-    bot.dialog('getAccountNumber', function (session, args) { //GET ACCOUNT NUMBER
-        session.send('getAccountNumber intent Found');        
+    // bot.dialog('getAccountNumber', function (session, args) { //GET ACCOUNT NUMBER
+    //     session.send('getAccountNumber intent Found');        
                       
-    }).triggerAction({
-        matches: 'getAccountNumber'
-    });
-
-    bot.dialog('transferMoney', function (session, args) { //TRANSFER MONEY
-        session.send('transferMoney intent Found');        
-                      
-    }).triggerAction({
-        matches: 'transferMoney'
-    });
+    // }).triggerAction({
+    //     matches: 'getAccountNumber'
+    // });
 
     bot.dialog('setSpendingGoal', [
         function (session, args, next) {
@@ -305,7 +294,7 @@ exports.startDialog = function (bot) {
 
     bot.dialog('buyStocks', [
         function (session, args, next) {
-            
+            if (!isAttachment(session)) {
             companyEntity = builder.EntityRecognizer.findEntity(args.intent.entities, 'company');
             quantityEntity = builder.EntityRecognizer.findEntity(args.intent.entities, 'quantity');        
             console.log(companyEntity.entity);               
@@ -316,11 +305,12 @@ exports.startDialog = function (bot) {
             } else {
                 next(); // Skip if we already have this info.
             }
+        }
             
         },
         function (session, results, next) {
             if (!isAttachment(session)) {
-
+                
                 if(results.response) {
                     session.conversationData["username"] = results.response;
                 }
@@ -328,6 +318,8 @@ exports.startDialog = function (bot) {
                 if (companyEntity && quantityEntity) {  //if company && quantity specified
                     
                     session.send('Buying %s stocks in %s...', quantityEntity.entity, companyEntity.entity);
+                    //buyStocksCard
+                    
                     stock.buyStocks(session, session.conversationData["username"], quantityEntity.entity, companyEntity.entity);
     
                 } else {
@@ -353,21 +345,33 @@ exports.startDialog = function (bot) {
             }
         },
         function (session, results, next) {
-                  delete session.conversationData["username"]; //delete session data.
+            if (!isAttachment(session)) {
+                delete session.conversationData["username"]; //delete session data.
                 session.endDialog("You have been logged out");
             
         }
+    }
     ]).triggerAction({
         matches: 'logout'
     });
 
     function isAttachment(session) { 
+       
         var msg = session.message.text;
-        if ((session.message.attachments && session.message.attachments.length > 0) || msg.includes("http")) {
+        if ((session.message.attachments && session.message.attachments.length > 0)) {
             //call custom vision
-            customVision.retreiveMessage(session);    
+            customVision.retreiveMessageImage(session);    
+            
             return true;
+
         }
+
+        else if(msg.includes("http")) {
+            
+            customVision.retreiveMessage(session); 
+            return true;
+        }    
+
         else {
             return false;
         }
