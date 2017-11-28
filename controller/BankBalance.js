@@ -1,7 +1,10 @@
 var rest = require('../API/Restclient');
 var bankBalance = null;
 var place = require('./yelpItems');
+var stock = require('./stockPrices');
 
+var globalAmount;
+var globalID;
 
 exports.displayBankBalance = function getBankBalance(session, username){ //GETS BANK BALANCE
     var url = 'http://contosobank-msa-sahil.azurewebsites.net/tables/contosobank';
@@ -22,8 +25,7 @@ exports.updateSpendingGoal = function updateSpendingGoal(session, username, spen
 
         for(var i in allGoals) {
             if (allGoals[i].username === username) { //check if fav food and username match
-                var id = allGoals[i].id;
-                
+                var id = allGoals[i].id;                
             }
         }
         rest.updateSpendingGoal(url, id, spendingGoal, handleUpdateSpendingGoalResponse);
@@ -59,8 +61,17 @@ exports.deleteAccount = function deleteAccount(session,username){ //favourite fo
 
     });
 
-
 };
+
+exports.withdrawBalance = function withdrawBalance(message, session, username, amount){ 
+    var url = 'http://contosobank-msa-sahil.azurewebsites.net/tables/contosobank';    
+    globalAmount = amount;
+    rest.getBankBalance(url, session, username, handleWithdrawResponse);
+};
+
+exports.getBankBalanceValue = function getBankBalanceValue() {
+    return bankBalance;
+}
 
 function deleteAccount(message, session, username) {
     console.log("DELETED ACCOUNT -------------");
@@ -75,6 +86,7 @@ function handleBankBalanceResponse(message, session, username) {
         var usernameReceived = bankBalanceResponse[index].username; 
         var bankBalance = bankBalanceResponse[index].balance;
         var nameReceived = bankBalanceResponse[index].name;
+        globalID =  bankBalanceResponse[index].id;
                 
         //Convert to lower case whilst doing comparison to ensure the user can type whatever they like
         if (username.toLowerCase() === usernameReceived.toLowerCase()) { //check if username matches database
@@ -102,8 +114,41 @@ function handleForwardedBankBalanceResponse(message, session, username) {
         place.displayPlaces(item.entity, "auckland", session);
     } else {
         session.send("No items identified! Please try again"); //finding affordable food
-    } 
+    }  
     
+}
+
+function handleWithdrawResponse(message,session,username) {
+    //console.log(globalAmount);
+    
+    handleBankBalanceResponse(message, session, username);
+
+    console.log(session.conversationData["bankbalance"]);
+
+    if (parseFloat(session.conversationData["bankbalance"]) >=  parseFloat(globalAmount)) {
+        session.send("You can afford to buy the stock.");
+        
+        //Update balance.
+        var newBankBalance = (parseFloat(session.conversationData["bankbalance"])- (parseFloat(globalAmount))).toString();
+        var url = 'http://contosobank-msa-sahil.azurewebsites.net/tables/contosobank';
+        rest.updateBankBalance(url, globalID, newBankBalance, handleUpdatedBankBalanceResponse);
+        session.send("Your balance is now $%s", newBankBalance);
+
+        //Update stock table
+
+        globalUsername = stock.getUsername();
+        globalQuantity = stock.getQuantity();
+        globalCompany = stock.getCompany();
+
+        url = 'http://contosobank-msa-sahil.azurewebsites.net/tables/contosobankStocks';
+        rest.addStockTable(url, globalUsername, globalQuantity, globalCompany, handleAddStockResponse);
+
+        
+    }
+
+    else {
+        session.send("You cannot afford to buy the stock.");
+    }
 }
 
 
@@ -139,6 +184,10 @@ function handleCreateAccountResponse(message, session, username) {
     console.log("ACCOUNT CREATED _____________________");
 }
 
-exports.getBankBalanceValue = function getBankBalanceValue() {
-    return bankBalance;
+function handleUpdatedBankBalanceResponse(message, session, username) {
+    console.log("UPDATED BALANCE");
+}
+
+function handleAddStockResponse(message, session, username) {
+    console.log("ADDED STOCK");
 }

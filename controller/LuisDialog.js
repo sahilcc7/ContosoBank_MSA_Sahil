@@ -291,7 +291,7 @@ exports.startDialog = function (bot) {
                 if (companyEntity) {  //if company specified
                     
                     session.send('Finding stock prices in %s...', companyEntity.entity);
-                    stock.displayStockPrices(session, companyEntity.entity); //sending session, currencies, amount
+                    stock.displayStockPrices(session, companyEntity.entity);
     
                 } else {
                     session.send("Please ensure you define the company name.");
@@ -302,6 +302,44 @@ exports.startDialog = function (bot) {
     ]).triggerAction({
         matches: 'stocks'
     });
+
+    bot.dialog('buyStocks', [
+        function (session, args, next) {
+            
+            companyEntity = builder.EntityRecognizer.findEntity(args.intent.entities, 'company');
+            quantityEntity = builder.EntityRecognizer.findEntity(args.intent.entities, 'quantity');        
+            console.log(companyEntity.entity);               
+            session.dialogData.args = args || {};  
+
+            if (!session.conversationData["username"]) {
+                builder.Prompts.text(session, "Enter your username.");
+            } else {
+                next(); // Skip if we already have this info.
+            }
+            
+        },
+        function (session, results, next) {
+            if (!isAttachment(session)) {
+
+                if(results.response) {
+                    session.conversationData["username"] = results.response;
+                }
+
+                if (companyEntity && quantityEntity) {  //if company && quantity specified
+                    
+                    session.send('Buying %s stocks in %s...', quantityEntity.entity, companyEntity.entity);
+                    stock.buyStocks(session, session.conversationData["username"], quantityEntity.entity, companyEntity.entity);
+    
+                } else {
+                    session.send("Please ensure you define the company name and quantity.");
+                }                     
+
+            }
+    }
+    ]).triggerAction({
+        matches: 'buyStocks'
+    });
+
 
 
 

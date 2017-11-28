@@ -44,6 +44,30 @@ exports.updateSpendingGoal = function sendData(url, id, spendingGoal){
       });
 };
 
+exports.updateBankBalance = function sendData(url, id, newBankBalance){ 
+    var options = {
+        url: url,
+        method: 'PATCH',
+        headers: {
+            'ZUMO-API-VERSION': '2.0.0',
+            'Content-Type':'application/json'
+        },
+        json: {
+            "id" : id,
+            "balance" : newBankBalance
+        }
+      };
+      
+      request(options, function (error, response, body) { //callback
+        if (!error && response.statusCode === 200) {
+            console.log(body);
+        }
+        else{
+            console.log(error);
+        }
+      });
+};
+
 exports.getCurrencyData = function getData (url, session, callback) {
     request.get(url, {'headers':{'ZUMO-API-VERSION': '2.0.0'}}, function handleGetResponse(err,res,body){
         if(err){
@@ -128,6 +152,34 @@ exports.deleteAccount = function deleteSpendingGoal(url, session, username, id, 
     })
 };
 
+exports.addStockTable = function addStockTable(url, username, quantity, company, callback){ 
+    console.log("ADDING STOCK TABLE");    
+    
+    var options = {
+        url: url,
+        method: 'POST',
+        headers: {
+            'ZUMO-API-VERSION': '2.0.0',
+            'Content-Type':'application/json'
+        },
+        json: {
+            "username" : username,            
+            "company": company,
+            "quantity": quantity
+        }
+      };
+      
+      request(options, function (error, response, body) { //callback
+        if (!error && response.statusCode === 200) {            
+            console.log(body);
+            callback(body, session, username);
+        }
+        else{
+            console.log(error);
+            console.log(response.statusCode);
+        }
+      });
+};
 
 // exports.postFavouriteFood = function sendData(url, username, favouriteFood){ 
 //     var options = {
