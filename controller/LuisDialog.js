@@ -13,7 +13,7 @@ var accountSetupComplete = false;
 exports.startDialog = function (bot) {
     
     // Replace {YOUR_APP_ID_HERE} and {YOUR_KEY_HERE} with your LUIS app ID and your LUIS key, respectively.
-    var recognizer = new builder.LuisRecognizer('https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/4dcdafa5-b5c6-416a-b64f-7a263019e094?subscription-key=47edd6f4484c40219f78d8593d7407ec&verbose=true&timezoneOffset=0&q=');
+    var recognizer = new builder.LuisRecognizer('https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/b8b8739d-56de-4dab-a105-bac246ce891f?subscription-key=02bf9baa9f3b4d96b4815ef11865df32&verbose=true&timezoneOffset=0&q=');
     
 
     bot.recognizer(recognizer);
