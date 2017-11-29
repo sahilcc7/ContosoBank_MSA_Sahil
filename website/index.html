@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script src="http://code.responsivevoice.org/responsivevoice.js"></script>
+  <link href="./botchat.css" rel="stylesheet">
+  <style>
+    .wc-chatview-panel {
+      width: 350px;
+      height: 550px;
+      position: relative;
+      border-radius: 16px 16px 0 0;
+      border: 3px solid #007bff;
+      border-radius: 10px;
+      border-bottom: 0;
+    }
+
+    #bot {
+      position: fixed;
+      right: 10px;
+      bottom: 10px;
+      box-shadow: 1px solid;
+      z-index: 1;
+      background-color: white;
+    }
+
+    .min-btn {
+      z-index: 9999;
+    }
+
+    .h2 {
+      font-family: Segoe UI;
+    }
+  </style>
+  <link rel="stylesheet" href="https://pingendo.com/assets/bootstrap/bootstrap-4.0.0-beta.1.css"> </head>
+
+<body>
+  <div id="bot" class="wc-narrow">
+    <script src="./botchat.js"></script>
+    <script>
+      var model = {
+              "userId": "LbAeKQmvCET",
+              "userName": "You",
+              "botId": "contosobank-msa-sahil",
+              "botIconUrl": "//bot-framework.azureedge.net/bot-icons-v1/bot-framework-default-2.png",
+              "botName": "Contoso Bank",
+              "secret": "pk7O-tshsHE.cwA.xK8.IWfQGG4rKDzHhnIqtkv0Tgpubpt45d_DkSqq4a1ShSo",
+              "iconUrl": "//bot-framework.azureedge.net/bot-icons-v1/bot-framework-default-2.png",
+              "directLineUrl": "https://webchat.botframework.com/v3/directline",
+              "webSocketEnabled": "false",
+              "speechTokenEndpoint": "https://api.botframework.com/v3/speechtoken"
+            };
+
+          BotChat.App({
+            directLine: { secret: 'pk7O-tshsHE.cwA.xK8.IWfQGG4rKDzHhnIqtkv0Tgpubpt45d_DkSqq4a1ShSo' },
+            user: { id: 'You' },
+            bot: { id: 'contosobank-msa-sahil' },
+            resize: 'detect'
+          }, document.getElementById("bot"));
+
+        function getChat() {
+            var chatData = document.getElementsByClassName('format-markdown');
+            console.log(chatData);
+            var index = chatData.length - 1;
+            var chatText = chatData[index].innerText;
+            console.log(chatText);
+          
+          	responsiveVoice.speak(chatText);          	        
+          
+        }
+      
+       function openChat() {
+              bot.style.display = "block";
+              var chatButton = document.getElementById("openChat");
+              //chatButton.value = "Close Chat";
+              document.getElementById("openChat").value = "Close Chat";
+              chatButton.onclick = function() { 
+                  closeChat();                  
+                
+            }
+       }
+ 			
+        function closeChat() {
+          bot.style.display = "none";
+          var chatButton = document.getElementById("openChat");
+          chatButton.value = "Open Chat";
+          chatButton.onclick = function(){
+              openChat();
+          }
+        }
+        
+        bot.style.display = "none"; //initialize chatbot as hidden
+    </script>
+    <script>
+    </script>
+  </div>
+  <nav class="navbar navbar-expand-md bg-secondary navbar-dark">
+    <div class="container">
+      <a class="navbar-brand" href="#">Contoso Bank</a>
+      <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"> <span class="navbar-toggler-icon"></span> </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="#">Features</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Pricing</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">About</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white" href="#">Contact us</a>
+          </li>
+        </ul>
+        <form class="form-inline m-0">
+          <input class="form-control mr-2" type="text" placeholder="Search">
+          <button class="btn btn-primary" type="submit">Search</button>
+        </form>
+      </div>
+    </div>
+  </nav>
+  <div class="py-5 gradient-overlay" style="background-image: url(&quot;https://pingendo.github.io/templates/sections/assets/cover_event.jpg&quot;);">
+    <div class="container py-5">
+      <div class="row">
+        <div class="col-md-3 text-white col-sm-10 text-center">
+          <img class="img-fluid d-block mx-auto mb-5" src="contoso_logo2.png" width="80%" height="80%"> </div>
+        <div class="col-md-9 text-white align-self-center">
+          <h1 class="display-3 mb-4">Welcome to Contoso Bank</h1>
+          <p class="lead mb-5">Contoso Bank strives to provide class leading financial solutions. We want to redefine the way people interact with their banking through emerging technologies. </p>
+          <a href="#" class="btn btn-lg mx-1 btn-secondary">Get Started</a>
+          <a href="#" class="btn btn-lg btn-primary mx-1">Business</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="py-5 text-center bg-light">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+          <h1 class="pb-3 text-secondary text-left">Why Contoso?</h1>
+          <button id="textToSpeech" class="btn btn-primary" onclick="getChat()">Text to Speech</button>
+          <input class="btn btn-primary" id="openChat" onclick="openChat()" type="button" value="Open Chat"> </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6 text-left">
+          <div class="row my-5">
+            <div class="col-2 order-lg-2 col-2 text-center"><i class="d-block fa fa-columns fa-3x"></i></div>
+            <div class="col-10 text-lg-right text-left order-lg-1">
+              <h4 class="text-primary text-left">Super Smart</h4>
+              <p class="text-left">Use our AI Chatbot to find out your balance, check stock prices, convert currency and much more!</p>
+            </div>
+          </div>
+          <div class="row my-5">
+            <div class="col-2 order-lg-2 col-2 text-center"><i class="d-block fa fa-circle-thin fa-4x"></i></div>
+            <div class="col-10 text-lg-right text-left order-lg-1">
+              <h4 class="text-primary text-left">About Us </h4>
+              <p class="text-left">As a staunchly Kiwi bank, doing what’s right for New Zealand is part of our makeup. This means running our business in a sustainable way – environmentally, socially, and just plain nicely. </p>
+            </div>
+          </div>
+          <div class="row my-5">
+            <div class="col-2 order-lg-2 col-2 text-center"><i class="d-block fa  fa-comment-o fa-3x"></i></div>
+          </div>
+        </div>
+        <div class="col-md-6"> </div>
+      </div>
+    </div>
+  </div>
+  <div class="text-white bg-dark">
+    <div class="container">
+      <div class="row">
+        <div class="p-5 col-md-3"> <i class="fa fa-5x mb-5 fa-diamond"></i>
+          <h3 class="mb-4">Contoso Bank&nbsp;</h3>
+          <ul class="list-unstyled">
+            <a href="#" class="text-white">Home</a>
+            <br>
+            <a href="#" class="text-white">About us</a>
+            <br>
+            <a href="#" class="text-white">Our services</a>
+            <br>
+            <a href="#" class="text-white">Business</a>
+          </ul>
+        </div>
+        <div class="p-5 col-md-4">
+          <h3 class="mb-4">Goals</h3>
+          <p>"<i>Like most Kiwis, we don't like to brag – we just get on with it. We're doing what we set out to do – making banking better for New Zealanders. The awards we've won are proof of that.
+</i>" &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;
+            <br>
+            <br>
+            <br>
+            <br> </p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12 mt-3">
+          <p class="text-center">© Copyright 2017 Contoso Bank Limited- All rights reserved. </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>
