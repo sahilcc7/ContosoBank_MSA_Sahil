@@ -10,7 +10,7 @@ exports.displayWelcome = function createThumbnailCard(session) {
             .subtitle('Ask me anything about your banking!')
             .text('Query your bank balance, find out if you can afford a takeaway, check stock, convert currency!')
             .images([
-                builder.CardImage.create(session, 'https://imgur.com/a/cM6Hd')
+                builder.CardImage.create(session, 'https://i.imgur.com/bgGY3Hj.png')
             ])
             .buttons([
                 
